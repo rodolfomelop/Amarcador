@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Adicionar Marcadores</title>
+  <!-- Adiciona os arquivos de estilo do Bootstrap -->
+  <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    #preview {
+      margin-top: 10px;
+      padding: 10px;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+      background-color: #f3f3f3;
+      white-space: pre-line;
+      display: none;
+    }
+  </style>
+</head>
+<body class="container mt-5">
+
+  <h1>Adicionar Marcadores</h1>
+
+  <textarea id="myTextarea" class="form-control" rows="5" oninput="updatePreview()" onkeydown="checkEnter(event)"></textarea><br>
+
+  <div class="form-check">
+    <input type="checkbox" class="form-check-input" id="newlineCheckbox" onclick="updatePreview()">
+    <label class="form-check-label" for="newlineCheckbox">Adicionar Nova Linha</label>
+  </div>
+
+  <button class="btn btn-primary" onclick="addMarkers('{{boldValue@open}}', '{{boldValue@close}}')">Adicionar Negrito</button>
+  <button class="btn btn-primary" onclick="addMarkers('{{italicValue@open}}', '{{italicValue@close}}')">Adicionar Itálico</button>
+
+  <div id="preview" class="mt-3 bg-white">Pré-visualização</div>
+
+  <!-- Adiciona os arquivos JavaScript do Bootstrap (jQuery é necessário) -->
+  <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+
+  <script>
+    function addMarkers(openTag, closeTag) {
+      var textarea = document.getElementById("myTextarea");
+      var start = textarea.selectionStart;
+      var end = textarea.selectionEnd;
+
+      if (start !== end) {
+        var selectedText = textarea.value.substring(start, end);
+        var newText = textarea.value.substring(0, start) +
+                      openTag + selectedText + closeTag +
+                      textarea.value.substring(end);
+        textarea.value = newText;
+      }
+
+      updatePreview();
+    }
+
+    function updatePreview() {
+      var previewDiv = document.getElementById("preview");
+      var textarea = document.getElementById("myTextarea");
+      var text = textarea.value;
+
+      // Substitui os marcadores pelos equivalentes de estilo HTML
+      var htmlText = text.replace(/\{\{boldValue@open\}\}(.*?)\{\{boldValue@close\}\}/g, '<strong>$1</strong>')
+                         .replace(/\{\{italicValue@open\}\}(.*?)\{\{italicValue@close\}\}/g, '<em>$1</em>');
+
+      // Adiciona quebra de linha como \n se o checkbox estiver marcado
+      if (document.getElementById("newlineCheckbox").checked) {
+        htmlText = htmlText.replace(/\\n/g, '<br>');
+      }
+
+      previewDiv.innerHTML = htmlText;
+      previewDiv.style.display = 'block';
+    }
+
+    function checkEnter(event) {
+      if (event.key === "Enter" && document.getElementById("newlineCheckbox").checked) {
+        var textarea = document.getElementById("myTextarea");
+        var start = textarea.selectionStart;
+        var end = textarea.selectionEnd;
+
+        var newText = textarea.value.substring(0, start) + "\\n" + textarea.value.substring(end);
+        textarea.value = newText;
+
+        // Impede a ação padrão do Enter (adicionar nova linha)
+        event.preventDefault();
+      }
+    }
+  </script>
+
+</body>
+</html>
